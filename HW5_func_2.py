@@ -3,12 +3,12 @@ import sys
 import numpy as np
 from imp import reload
 
-def Random_Point(precision=4):
+def Random_Point(precision=4):  # 소수점 아래 4자리까지 x: -3~3, y: -2~2
     x = np.random.rand() * 6 - 3
     y = np.random.rand() * 4 - 2
     return np.array([round(x, precision), round(y, precision)])
 
-def Get_Population(pop_size):
+def Get_Population(pop_size):   # pop_size : search할 군집 내 좌표 수
     return [Random_Point() for x in range(pop_size)]
 
 def Evaluate(X):
@@ -20,7 +20,7 @@ def Evaluate(X):
 def Evaluate_Population(population):
     return [Evaluate(pop) for pop in population]
 
-def Get_Best_from_Population(population):
+def Get_Best_from_Population(population):   # global best
 
     eval_list = Evaluate_Population(population)
     best = min(eval_list)
@@ -29,30 +29,21 @@ def Get_Best_from_Population(population):
 
     return best_chrom
 
-# def Get_rand_pi(C1, C2):
-#     r1, r2 = np.random.rand(2)
-#     pi = C1 * r1 + C2 * r2
-#
-#     if pi < 4:
-#         r1,r2,pi = Get_rand_pi(C1, C2)
-#
-#     return r1, r2, pi
-
-def Get_Ring_Best(population, idx): # 이웃 베스트
+def Get_Ring_Best(population, idx): # neighbor best -> idx 기준 양옆
     nei_score = []
-    if idx == len(population) - 1:
+    if idx == len(population) - 1:  # idx = 49
         for x in range(-1, 1):
-            nei_score.append(Evaluate(population[idx + x]))
+            nei_score.append(Evaluate(population[idx + x])) # population[48, 49]
     else:
         for x in range(-1, 2):
-            nei_score.append(Evaluate(population[idx + x]))
+            nei_score.append(Evaluate(population[idx + x])) # population[idx-1, idx, idx+1]
 
-    best_idx = nei_score.index(min(nei_score)) - 1
+    best_idx = nei_score.index(min(nei_score)) - 1  # best_idx = best x
     ring_best = population[idx + best_idx]
 
     return ring_best
 
-def Get_Ring_Best_Selfless(population, idx):
+def Get_Ring_Best_Selfless(population, idx):    # neighbor best에 자기 자신은 포함하지 않는 버전 -> best일 경우 랜덤한 값을 best로 가져감
     nei_score = []
 
     if idx == len(population) - 1:
@@ -95,7 +86,7 @@ def PSO_Ring(repeat_time, pop_size, C1, C2):
 
             # 각 입자의 속도 업데이트
             velocity[part_idx] = (velocity[part_idx] + C1 * r1 * (particle_best[part_idx] - population[part_idx])
-                                  + C2 * r2 * (ring_best - population[part_idx]))
+                                                     + C2 * r2 * (ring_best - population[part_idx]))
 
             # 각 입자의 위치 변경
             population[part_idx] = population[part_idx] + velocity[part_idx]
